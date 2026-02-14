@@ -99,9 +99,10 @@
 
         async function getAIResponse(userMessage) {
             try {
+                // FIXED INTEGRATION: Calls your specific space
                 const client = await Client.connect("Rishav1330/InAmigos-GPT");
                 
-                // FIXED INTEGRATION: Using Array format [message, history]
+                // Uses the Array format [message, history] required by Gradio
                 const result = await client.predict("/chat", [userMessage, chatHistory]);
 
                 const botReply = result.data[0];
@@ -137,16 +138,16 @@
 
         function appendMessage(text, isUser) {
             const wrapper = document.createElement('div');
-            // 'w-full flex' ensures the parent container allows positioning
+            // 'w-full flex' + justify handles the horizontal alignment
             wrapper.className = `w-full flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`;
             
             if (isUser) {
                 wrapper.innerHTML = `
-                    <div class="message-bubble max-w-[85%] text-right">
-                        <div class="bg-white text-[#0f0f0f] rounded-2xl rounded-tr-md px-4 py-3 inline-block text-left">
+                    <div class="message-bubble max-w-[85%] flex flex-col items-end">
+                        <div class="bg-white text-[#0f0f0f] rounded-2xl rounded-tr-md px-4 py-3 w-fit text-left">
                             <p class="text-[15px] leading-relaxed whitespace-pre-wrap">${escapeHtml(text)}</p>
                         </div>
-                        <span class="text-[11px] text-gray-500 mt-1 mr-1 block">You</span>
+                        <span class="text-[11px] text-gray-500 mt-1 mr-1 block text-right">You</span>
                     </div>`;
             } else {
                 wrapper.innerHTML = `
@@ -155,7 +156,7 @@
                             <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke-width="1.5" stroke="currentColor" fill="none"/></svg>
                         </div>
                         <div class="w-fit">
-                            <div class="bg-[#1a1a1a] rounded-2xl rounded-tl-md px-4 py-3 border border-[#252525] inline-block">
+                            <div class="bg-[#1a1a1a] rounded-2xl rounded-tl-md px-4 py-3 border border-[#252525] w-fit">
                                 <p class="text-[15px] leading-relaxed text-gray-200">${text}</p>
                             </div>
                             <span class="text-[11px] text-gray-500 mt-1 ml-1 block">HR-GPT</span>
