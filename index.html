@@ -46,14 +46,14 @@
             </div>
         </header>
 
-        <main id="chat-container" class="chat-container flex-1 overflow-y-auto px-4 py-4 space-y-4">
+        <main id="chat-container" class="chat-container flex-1 overflow-y-auto px-4 py-6 space-y-6">
             <div class="message-bubble flex gap-3 max-w-[85%]">
                 <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-[#2a2a2a] to-[#1a1a1a] flex items-center justify-center border border-[#333]">
                     <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                     </svg>
                 </div>
-                <div class="flex-1">
+                <div class="w-fit">
                     <div class="bg-[#1a1a1a] rounded-2xl rounded-tl-md px-4 py-3 border border-[#252525]">
                         <p class="text-[15px] leading-relaxed text-gray-200">Hello! 👋 I am the official InAmigos Foundation Assistant. Paste an intern's response or ask about our processes, and I will assist you.</p>
                     </div>
@@ -62,12 +62,12 @@
             </div>
         </main>
 
-        <div id="typing-indicator" class="hidden px-4 pb-2">
+        <div id="typing-indicator" class="hidden px-4 pb-4">
             <div class="flex gap-3 max-w-[85%]">
                 <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-[#2a2a2a] to-[#1a1a1a] flex items-center justify-center border border-[#333]">
                     <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke-width="1.5" stroke="currentColor" fill="none"/></svg>
                 </div>
-                <div class="bg-[#1a1a1a] rounded-2xl rounded-tl-md px-4 py-3 border border-[#252525]">
+                <div class="bg-[#1a1a1a] rounded-2xl rounded-tl-md px-4 py-3 border border-[#252525] w-fit">
                     <div class="flex items-center gap-1">
                         <span class="typing-dot w-2 h-2 bg-gray-400 rounded-full"></span>
                         <span class="typing-dot w-2 h-2 bg-gray-400 rounded-full"></span>
@@ -99,28 +99,21 @@
 
         async function getAIResponse(userMessage) {
             try {
-                // CONNECTING TO YOUR BRAIN
                 const client = await Client.connect("Rishav1330/InAmigos-GPT");
                 
-                // CALLING THE CHAT FUNCTION
-                const result = await client.predict("/chat", { 
-                    message: userMessage, 
-                    history: chatHistory 
-                });
+                // FIXED INTEGRATION: Using Array format [message, history]
+                const result = await client.predict("/chat", [userMessage, chatHistory]);
 
                 const botReply = result.data[0];
-                
-                // Update local history for the next turn
                 chatHistory.push([userMessage, botReply]);
                 return botReply;
 
             } catch (error) {
                 console.error("API Error:", error);
-                return "⚠️ Sorry, I'm having trouble connecting to the InAmigos server. Please try again later.";
+                return "⚠️ Sorry, I'm having trouble connecting to the InAmigos server. Please ensure the Hugging Face Space is Public.";
             }
         }
 
-        // UI Handlers
         const form = document.getElementById('message-form');
         const input = document.getElementById('message-input');
         const container = document.getElementById('chat-container');
@@ -131,48 +124,45 @@
             const text = input.value.trim();
             if (!text) return;
 
-            // 1. Show User Message
             appendMessage(text, true);
             input.value = '';
             autoResize(input);
-
-            // 2. Show Typing Indicator
             typingIndicator.classList.remove('hidden');
             scrollToBottom();
 
-            // 3. Get Real AI Response
             const response = await getAIResponse(text);
-
-            // 4. Hide Typing & Show Bot Message
             typingIndicator.classList.add('hidden');
             appendMessage(response, false);
         });
 
         function appendMessage(text, isUser) {
-            const div = document.createElement('div');
-            div.className = `message-bubble flex ${isUser ? 'justify-end' : 'gap-3'} max-w-[85%] ${isUser ? 'ml-auto' : ''}`;
+            const wrapper = document.createElement('div');
+            // 'w-full flex' ensures the parent container allows positioning
+            wrapper.className = `w-full flex ${isUser ? 'justify-end' : 'justify-start'} mb-4`;
             
             if (isUser) {
-                div.innerHTML = `
-                    <div class="flex-1">
-                        <div class="bg-white text-[#0f0f0f] rounded-2xl rounded-tr-md px-4 py-3">
+                wrapper.innerHTML = `
+                    <div class="message-bubble max-w-[85%] text-right">
+                        <div class="bg-white text-[#0f0f0f] rounded-2xl rounded-tr-md px-4 py-3 inline-block text-left">
                             <p class="text-[15px] leading-relaxed whitespace-pre-wrap">${escapeHtml(text)}</p>
                         </div>
-                        <span class="text-[11px] text-gray-500 mt-1 mr-1 block text-right">You</span>
+                        <span class="text-[11px] text-gray-500 mt-1 mr-1 block">You</span>
                     </div>`;
             } else {
-                div.innerHTML = `
-                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-[#2a2a2a] to-[#1a1a1a] flex items-center justify-center border border-[#333]">
-                        <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke-width="1.5" stroke="currentColor" fill="none"/></svg>
-                    </div>
-                    <div class="flex-1">
-                        <div class="bg-[#1a1a1a] rounded-2xl rounded-tl-md px-4 py-3 border border-[#252525]">
-                            <p class="text-[15px] leading-relaxed text-gray-200">${text}</p>
+                wrapper.innerHTML = `
+                    <div class="message-bubble flex gap-3 max-w-[85%]">
+                        <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-[#2a2a2a] to-[#1a1a1a] flex items-center justify-center border border-[#333]">
+                            <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke-width="1.5" stroke="currentColor" fill="none"/></svg>
                         </div>
-                        <span class="text-[11px] text-gray-500 mt-1 ml-1 block">HR-GPT</span>
+                        <div class="w-fit">
+                            <div class="bg-[#1a1a1a] rounded-2xl rounded-tl-md px-4 py-3 border border-[#252525] inline-block">
+                                <p class="text-[15px] leading-relaxed text-gray-200">${text}</p>
+                            </div>
+                            <span class="text-[11px] text-gray-500 mt-1 ml-1 block">HR-GPT</span>
+                        </div>
                     </div>`;
             }
-            container.appendChild(div);
+            container.appendChild(wrapper);
             scrollToBottom();
         }
 
