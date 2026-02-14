@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>InAmigos HR-GPT</title>
+    <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        * { font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; }
+        .chat-container::-webkit-scrollbar { width: 6px; }
+        .chat-container::-webkit-scrollbar-track { background: transparent; }
+        .chat-container::-webkit-scrollbar-thumb { background: #333; border-radius: 3px; }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes typing {
+            0%, 60%, 100% { opacity: 0.3; }
+            30% { opacity: 1; }
+        }
+        
+        .message-bubble { animation: fadeInUp 0.3s ease-out; }
+        .typing-dot { animation: typing 1.4s infinite; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+        .input-glow:focus { box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.1); }
+    </style>
+</head>
+
+<body class="h-full bg-[#0f0f0f] text-white overflow-hidden">
+    <div class="h-full flex flex-col">
+        <header class="flex-shrink-0 border-b border-[#1a1a1a] bg-[#0f0f0f]/95 backdrop-blur-sm">
+            <div class="flex items-center justify-center gap-3 px-4 py-3">
+                <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-[#2a2a2a] to-[#1a1a1a] flex items-center justify-center border border-[#333]">
+                    <svg class="w-5 h-5 text-white/90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                </div>
+                <h1 class="text-lg font-semibold tracking-tight">InAmigos HR-GPT</h1>
+            </div>
+        </header>
+
+        <main id="chat-container" class="chat-container flex-1 overflow-y-auto px-4 py-4 space-y-4">
+            <div class="message-bubble flex gap-3 max-w-[85%]">
+                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-[#2a2a2a] to-[#1a1a1a] flex items-center justify-center border border-[#333]">
+                    <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                </div>
+                <div class="flex-1">
+                    <div class="bg-[#1a1a1a] rounded-2xl rounded-tl-md px-4 py-3 border border-[#252525]">
+                        <p class="text-[15px] leading-relaxed text-gray-200">Hello! 👋 I am the official InAmigos Foundation Assistant. Paste an intern's response or ask about our processes, and I will assist you.</p>
+                    </div>
+                    <span class="text-[11px] text-gray-500 mt-1 ml-1 block">HR-GPT</span>
+                </div>
+            </div>
+        </main>
+
+        <div id="typing-indicator" class="hidden px-4 pb-2">
+            <div class="flex gap-3 max-w-[85%]">
+                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-[#2a2a2a] to-[#1a1a1a] flex items-center justify-center border border-[#333]">
+                    <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke-width="1.5" stroke="currentColor" fill="none"/></svg>
+                </div>
+                <div class="bg-[#1a1a1a] rounded-2xl rounded-tl-md px-4 py-3 border border-[#252525]">
+                    <div class="flex items-center gap-1">
+                        <span class="typing-dot w-2 h-2 bg-gray-400 rounded-full"></span>
+                        <span class="typing-dot w-2 h-2 bg-gray-400 rounded-full"></span>
+                        <span class="typing-dot w-2 h-2 bg-gray-400 rounded-full"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <footer class="flex-shrink-0 border-t border-[#1a1a1a] bg-[#0f0f0f] p-3 sm:p-4">
+            <form id="message-form" class="flex gap-2 max-w-3xl mx-auto">
+                <div class="flex-1 relative">
+                    <textarea id="message-input" rows="1" class="input-glow w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl px-4 py-3 text-[15px] text-white placeholder-gray-500 resize-none focus:outline-none focus:border-[#3a3a3a] transition-all" placeholder="Ask about internships, tasks, or certificates..." style="max-height: 120px;"></textarea>
+                </div>
+                <button type="submit" id="send-btn" class="flex-shrink-0 w-11 h-11 bg-white hover:bg-gray-200 rounded-xl flex items-center justify-center transition-all duration-200 disabled:opacity-40">
+                    <svg class="w-5 h-5 text-[#0f0f0f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                    </svg>
+                </button>
+            </form>
+            <p class="text-[11px] text-gray-600 text-center mt-2">Admin: Rishav • © InAmigos Foundation • All Rights Reserved</p>
+        </footer>
+    </div>
+
+    <script type="module">
+        import { Client } from "https://cdn.jsdelivr.net/npm/@gradio/client/dist/index.min.js";
+
+        let chatHistory = [];
+
+        async function getAIResponse(userMessage) {
+            try {
+                // CONNECTING TO YOUR BRAIN
+                const client = await Client.connect("Rishav1330/InAmigos-GPT");
+                
+                // CALLING THE CHAT FUNCTION
+                const result = await client.predict("/chat", { 
+                    message: userMessage, 
+                    history: chatHistory 
+                });
+
+                const botReply = result.data[0];
+                
+                // Update local history for the next turn
+                chatHistory.push([userMessage, botReply]);
+                return botReply;
+
+            } catch (error) {
+                console.error("API Error:", error);
+                return "⚠️ Sorry, I'm having trouble connecting to the InAmigos server. Please try again later.";
+            }
+        }
+
+        // UI Handlers
+        const form = document.getElementById('message-form');
+        const input = document.getElementById('message-input');
+        const container = document.getElementById('chat-container');
+        const typingIndicator = document.getElementById('typing-indicator');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const text = input.value.trim();
+            if (!text) return;
+
+            // 1. Show User Message
+            appendMessage(text, true);
+            input.value = '';
+            autoResize(input);
+
+            // 2. Show Typing Indicator
+            typingIndicator.classList.remove('hidden');
+            scrollToBottom();
+
+            // 3. Get Real AI Response
+            const response = await getAIResponse(text);
+
+            // 4. Hide Typing & Show Bot Message
+            typingIndicator.classList.add('hidden');
+            appendMessage(response, false);
+        });
+
+        function appendMessage(text, isUser) {
+            const div = document.createElement('div');
+            div.className = `message-bubble flex ${isUser ? 'justify-end' : 'gap-3'} max-w-[85%] ${isUser ? 'ml-auto' : ''}`;
+            
+            if (isUser) {
+                div.innerHTML = `
+                    <div class="flex-1">
+                        <div class="bg-white text-[#0f0f0f] rounded-2xl rounded-tr-md px-4 py-3">
+                            <p class="text-[15px] leading-relaxed whitespace-pre-wrap">${escapeHtml(text)}</p>
+                        </div>
+                        <span class="text-[11px] text-gray-500 mt-1 mr-1 block text-right">You</span>
+                    </div>`;
+            } else {
+                div.innerHTML = `
+                    <div class="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-[#2a2a2a] to-[#1a1a1a] flex items-center justify-center border border-[#333]">
+                        <svg class="w-4 h-4 text-white/80" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" stroke-width="1.5" stroke="currentColor" fill="none"/></svg>
+                    </div>
+                    <div class="flex-1">
+                        <div class="bg-[#1a1a1a] rounded-2xl rounded-tl-md px-4 py-3 border border-[#252525]">
+                            <p class="text-[15px] leading-relaxed text-gray-200">${text}</p>
+                        </div>
+                        <span class="text-[11px] text-gray-500 mt-1 ml-1 block">HR-GPT</span>
+                    </div>`;
+            }
+            container.appendChild(div);
+            scrollToBottom();
+        }
+
+        function scrollToBottom() { container.scrollTop = container.scrollHeight; }
+        function autoResize(t) { t.style.height = 'auto'; t.style.height = Math.min(t.scrollHeight, 120) + 'px'; }
+        function escapeHtml(text) { const d = document.createElement('div'); d.textContent = text; return d.innerHTML; }
+
+        input.addEventListener('input', e => autoResize(e.target));
+        input.addEventListener('keydown', e => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                form.dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+</body>
+</html>
